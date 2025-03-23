@@ -1,0 +1,27 @@
+on: '3.8'
+
+services:
+  keycloak-test:
+    image: quay.io/keycloak/keycloak:26.0.5
+    command: start-dev
+    container_name: keycloak
+    restart: unless-stopped
+    volumes:
+      - /opt/keycloak-providers:/opt/keycloak/providers
+      - /opt/keycloak-themes:/opt/keycloak/themes
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: Asia/Tehran
+      KC_DB: oracle
+      KC_DB_URL: jdbc:oracle:thin:@//127.0.0.1:1521/ORCLCDB
+      KC_DB_USERNAME: keycloaktest
+      KC_DB_PASSWORD: ke
+      KC_PROXY_HEADERS: xforwarded
+#      KC_HOSTNAME_STRICT: false # or (hostname and hostname-port)
+      KC_HOSTNAME: 127.0.0.1
+      KC_HOSTNAME_PORT: '8081'
+      KC_HTTP_RELATIVE_PATH: /auth
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Admin@123
+

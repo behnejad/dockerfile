@@ -1,0 +1,228 @@
+services:
+  gateway:
+    restart: always
+    container_name: gateway
+    image: camunda/zeebe:8.6.5
+    environment:
+      #      - ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_STANDALONE_GATEWAY=true
+      - ZEEBE_GATEWAY_NETWORK_HOST=0.0.0.0
+      - ZEEBE_GATEWAY_NETWORK_PORT=26500
+      - ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS=node0:26502,node1:26502,node2:26502
+      - ZEEBE_GATEWAY_CLUSTER_PORT=26502
+      - ZEEBE_GATEWAY_CLUSTER_HOST=gateway
+      - CAMUNDA_REST_QUERY_ENABLED=true
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    ports:
+      - "26500:26500"
+      - "8090:8080"
+    networks:
+      - zeebe_network
+    volumes:
+      - zeebe:/usr/local/zeebe/data
+  
+  node0:
+    container_name: zeebe_broker_1
+    image: camunda/zeebe:8.6.5
+    environment:
+      #- ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_BROKER_CLUSTER_NODEID=0
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=node0:26502,node1:26502,node2:26502
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://elasticsearch:9200
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_INDEX_USERTASK=true
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - zeebe_network
+    volumes:
+      - zeebe0:/usr/local/zeebe/data
+
+  node1:
+    container_name: zeebe_broker_2
+    image: camunda/zeebe:8.6.5
+    environment:
+      #- ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_BROKER_CLUSTER_NODEID=1
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=node0:26502,node1:26502,node2:26502
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://elasticsearch:9200
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_INDEX_USERTASK=true
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - zeebe_network
+    depends_on:
+      - node0
+    volumes:
+      - zeebe1:/usr/local/zeebe/data
+
+  node2:
+    container_name: zeebe_broker_3
+    image: camunda/zeebe:8.6.5
+    environment:
+      #- ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_BROKER_CLUSTER_NODEID=2
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=node0:26502,node1:26502,node2:26502
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://elasticsearch:9200
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
+      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_INDEX_USERTASK=true
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - zeebe_network
+    depends_on:
+      - node1
+    volumes:
+      - zeebe2:/usr/local/zeebe/data
+
+  elasticsearch:
+    image: elasticsearch/elasticsearch:8.17.1
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+    networks:
+      - zeebe_network
+
+  tasklist:
+    image: camunda/tasklist:8.6.5
+    container_name: tasklist
+    ports:
+      - "8083:8080"
+    environment:
+      - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=gateway:26500
+      # - ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
+      # - ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
+      # - ZEEBE_TOKEN_AUDIENCE=zeebe-api
+      # - ZEEBE_AUTHORIZATION_SERVER_URL=http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/token
+      - CAMUNDA_TASKLIST_ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
+      # - SPRING_PROFILES_ACTIVE=identity-auth
+      # - CAMUNDA_TASKLIST_IDENTITY_BASEURL=http://identity:8084
+      # - CAMUNDA_TASKLIST_IDENTITY_ISSUER_URL=http://${HOST}:18080/auth/realms/camunda-platform
+      # - CAMUNDA_TASKLIST_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
+      # - CAMUNDA_TASKLIST_IDENTITY_CLIENTID=tasklist
+      # - CAMUNDA_TASKLIST_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
+      # - CAMUNDA_TASKLIST_IDENTITY_AUDIENCE=tasklist-api
+      # - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://${HOST}:18080/auth/realms/camunda-platform
+      # - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      # - CAMUNDA_TASKLIST_IDENTITY_RESOURCE_PERMISSIONS_ENABLED=${RESOURCE_AUTHORIZATIONS_ENABLED}
+      - management.endpoints.web.exposure.include=health
+      - management.endpoint.health.probes.enabled=true
+      - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness" ]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
+    volumes:
+      - tasklist_tmp:/tmp
+    networks:
+      - zeebe_network
+    depends_on:
+      - gateway
+
+  operate:
+    image: camunda/operate:8.6.5
+    container_name: operate
+    ports:
+      - "8082:8080"
+    environment:
+      #      - LOGGING_LEVEL_ORG_CAMUNDA_OPERATE=INFO
+      - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=gateway:26500
+      #- ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
+      #- ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
+      #- ZEEBE_TOKEN_AUDIENCE=zeebe-api
+      #- ZEEBE_AUTHORIZATION_SERVER_URL=http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/token
+      - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
+      #- SPRING_PROFILES_ACTIVE=identity-auth
+      #- CAMUNDA_OPERATE_IDENTITY_BASEURL=http://identity:8084
+      #- CAMUNDA_OPERATE_IDENTITY_ISSUER_URL=http://${HOST}:18080/auth/realms/camunda-platform
+      #- CAMUNDA_OPERATE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:8080/auth/realms/camunda-platform
+      #- CAMUNDA_OPERATE_IDENTITY_CLIENTID=operate
+      #- CAMUNDA_OPERATE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
+      #- CAMUNDA_OPERATE_IDENTITY_AUDIENCE=operate-api
+      #- SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://${HOST}:18080/auth/realms/camunda-platform
+      #- SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      #- CAMUNDA_OPERATE_IDENTITY_RESOURCEPERMISSIONSENABLED=${RESOURCE_AUTHORIZATIONS_ENABLED}
+      - management.endpoints.web.exposure.include=health
+      - management.endpoint.health.probes.enabled=true
+      - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -O - -q 'http://localhost:8080/actuator/health/readiness'" ]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
+    volumes:
+      - operate_tmp:/tmp
+    networks:
+      - zeebe_network
+    depends_on:
+      - gateway
+      - elasticsearch
+
+networks:
+  zeebe_network:
+    driver: bridge
+
+volumes:
+  zeebe:
+  zeebe0:
+  zeebe1:
+  zeebe2:
+  elastic:
+  operate_tmp:
+  tasklist_tmp:

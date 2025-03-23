@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.26.2-alpine
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./a.crt:/a.crt:ro
+      - ./a.key:/a.key:ro
+      - ./my.conf:/etc/nginx/conf.d/my.conf:ro
+      - ./site-enabled:/etc/nginx/site-enabled:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      TZ: Asia/Tehran
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: 1.0
+
