@@ -1,0 +1,15 @@
+services:
+  app:
+    container_name: mariadb
+    image: mariadb:11.4.5-noble
+    restart: unless-stopped
+    environment:
+      TZ: 'Asia/Tehran'
+      MARIADB_ROOT_PASSWORD: 'shoospack'
+      MARIADB_USER: 'a'
+      MARIADB_PASSWORD: 'a'
+      MARIADB_DATABASE: 'a'
+    ports:
+      - '127.0.0.1:3307:3306'
+    volumes:
+      - /opt/mariadb/data/:/var/lib/mysql:Z
