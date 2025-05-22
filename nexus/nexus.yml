@@ -1,0 +1,17 @@
+services:
+  app:
+    container_name: nexus3
+    image: sonatype/nexus3:3.80.0-alpine
+    restart: unless-stopped
+      #user: "0:0"
+    environment:
+      TZ: 'Asia/Tehran'
+    ports:
+      - '8080:8080'
+      - '8081:8081'
+      - '8082:8082'
+      - '8083:8083'
+      - '8084:8084'
+    #network_mode: host
+    volumes:
+      - /opt/nexus-data/:/nexus-data/
