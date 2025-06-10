@@ -1,0 +1,17 @@
+services:
+    nginx-ui:
+        stdin_open: true
+        tty: true
+        container_name: nginx-ui
+        restart: always
+        environment:
+            - TZ=Asia/Tehran
+        volumes:
+            - '/tmp/test/nginx:/etc/nginx'
+            - '/tmp/test/nginx-ui:/etc/nginx-ui'
+            - '/tmp/test/www:/var/www'
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        ports:
+            - 8080:80
+            - 8443:443
+        image: 'uozi/nginx-ui:latest'
