@@ -1,0 +1,33 @@
+version: "3.4"
+services:
+  wgeasy:
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wgeasy
+    restart: unless-stopped
+    environment:
+      - PORT=51821
+      - PASSWORD_HASH='$2a$12$l0e41tp4e9sT41b.pA2gf.9k/Op6byZCvc0WZJf5gEAyt9VSid7VK'
+      - LANG=en
+      - WG_SUDO=1
+      - WG_QUICK_USERSPACE_IMPLEMENTATION=/app/copguard-go
+      - WG_HOST=x.x.x.x
+      - WG_PERSISTENT_KEEPALIVE=60
+      - WG_PORT=8443
+      - WG_DEFAULT_DNS='94.140.14.14,94.140.15.15'
+    ports:
+      - "8443:8443/udp"
+      - "127.0.0.1:51821:51821/tcp"
+    volumes:
+      - "/opt/wgeasy:/etc/wireguard"
+      - "/dev/net/tun:/dev/net/tun"
+      - "/opt/wgeasy/mywg-quick:/usr/bin/wg-quick"
+      - "/opt/wgeasy/copguard-go:/app/copguard-go"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+      - SYS_TIME
+      - SYS_NICE
+    sysctls:
+      - 'net.ipv4.conf.all.src_valid_mark=1'
+      - 'net.ipv4.ip_forward=1'
+  
