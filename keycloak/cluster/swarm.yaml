@@ -1,0 +1,69 @@
+version: '3.8'
+networks:
+  keycloak:
+  foo:
+secrets:
+  pg-password:
+    file: ./pg-password
+services:
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg-password
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+    secrets:
+     - pg-password
+    networks:
+      - keycloak
+
+  keycloak:
+    image: keycloak:test
+    deploy:
+      endpoint_mode: dnsrr
+      replicas: 2
+      placement:
+        constraints:
+          - "node.platform.os==linux"
+#        max_replicas_per_node: 1
+      labels:
+        traefik.enable: "true"
+        traefik.http.routers.keycloak.rule: Host(`keycloak`)
+        traefik.http.routers.keycloak.entrypoints: http
+        traefik.http.services.keycloak.loadbalancer.server.port: 8080
+        traefik.http.services.keycloak.loadbalancer.healthcheck.path: /auth/
+    secrets:
+     - pg-password
+    environment:
+#      ROOT_LOGLEVEL: DEBUG
+      CACHE_OWNERS_COUNT: 2
+      CACHE_OWNERS_AUTH_SESSIONS_COUNT: 2
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_PASSWORD_FILE: /run/secrets/pg-password
+      DB_SCHEMA: public
+      DB_USER: "keycloak"
+      DB_VENDOR: postgres
+      DOCKER_SWARM: "true"
+      JGROUPS_DISCOVERY_PROTOCOL: dns.DNS_PING
+      JGROUPS_DISCOVERY_PROPERTIES: dns_query=keycloak
+      KEYCLOAK_PASSWORD: password
+      KEYCLOAK_USER: admin
+      PROXY_ADDRESS_FORWARDING: "true"
+    networks:
+      - keycloak
+      - foo
+  traefik:
+    image: traefik:v2.3
+    ports:
+     - '80:80'
+    command:
+      - --entrypoints.http.address=:80
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --accesslog
+    networks:
+      - keycloak
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -1,0 +1,88 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_VERSION}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - myNetwork
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
+    ports:
+      - "8080:8080"
+    environment:
+      # KC_CACHE: ispn
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_HTTP_RELATIVE_PATH: ${KEYCLOAK_HTTP_RELATIVE_PATH}
+      # KC_HOSTNAME_URL: ${KEYCLOAK_HOSTNAME_URL}
+      # KC_HOSTNAME_ADMIN_URL: ${KEYCLOAK_HOSTNAME_ADMIN_URL}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: ${POSTGRES_URL}
+      KC_DB_USERNAME: ${POSTGRES_USERNAME}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    command: 
+      - start-dev
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/auth" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+    networks:
+      - myNetwork
+    depends_on:
+      - postgres
+
+  # keycloak1:
+  #   container_name: keycloak1
+  #   image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
+  #   ports:
+  #     - "8081:8080"
+  #   environment:
+  #     # KC_CACHE: ispn
+  #     KC_HEALTH_ENABLED: true
+  #     KC_METRICS_ENABLED: true
+  #     KC_HTTP_RELATIVE_PATH: ${KEYCLOAK_HTTP_RELATIVE_PATH}
+  #     # KC_HOSTNAME_URL: ${KEYCLOAK_HOSTNAME_URL}
+  #     # KC_HOSTNAME_ADMIN_URL: ${KEYCLOAK_HOSTNAME_ADMIN_URL}
+  #     KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+  #     KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+  #     KC_DB: postgres
+  #     KC_DB_URL: ${POSTGRES_URL}
+  #     KC_DB_USERNAME: ${POSTGRES_USERNAME}
+  #     KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+  #   command: 
+  #     - start-dev
+  #   restart: on-failure
+  #   healthcheck:
+  #     test: [ "CMD", "curl", "-f", "http://localhost:8080/auth" ]
+  #     interval: 30s
+  #     timeout: 15s
+  #     retries: 5
+  #     start_period: 30s
+  #   networks:
+  #     - myNetwork
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  postgres:
+
+networks:
+  myNetwork:
