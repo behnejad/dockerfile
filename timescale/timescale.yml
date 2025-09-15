@@ -1,0 +1,14 @@
+services:
+  timescale:
+    container_name: timescale
+    image: timescale/timescaledb:2.22.0-pg17
+    restart: unless-stopped
+    environment:
+      TZ: 'Asia/Tehran'
+      POSTGRES_PASSWORD: root
+      PGDATA: /pgdata
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - /opt/docker/timescale/:/pgdata:Z
+
