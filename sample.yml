@@ -1,4 +1,10 @@
 version: "3.4"
+secrets:
+  # Secrets are single-line text files where the sole content is the secret
+  # Paths in this example assume that secrets are kept in local folder called ".secrets"
+  DB_ROOT_PWD:
+    file: .secrets/db_root_pwd.txt
+
 services:
   shalgham:
     image: site.com/shalgham:4.1.1

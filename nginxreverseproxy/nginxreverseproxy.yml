@@ -1,9 +1,28 @@
 services:
   app:
-    image: jc21/nginx-proxy-manager:2.12.3
+    image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     environment:
       TZ: 'Asia/Tehran'
+
+      DB_SQLITE_FILE: "/data/database.sqlite"
+
+      INITIAL_ADMIN_EMAIL: my@example.com
+      INITIAL_ADMIN_PASSWORD: mypassword1
+      
+      #DISABLE_IPV6: 'true'
+      
+      #MYSQL_ROOT_PASSWORD: 'npm'
+      #MYSQL_DATABASE: 'npm'
+      #MYSQL_USER: 'npm'
+      #MYSQL_PASSWORD: 'npm'
+      #MARIADB_AUTO_UPGRADE: '1'
+
+      #DB_POSTGRES_HOST: 'db'
+      #DB_POSTGRES_PORT: '5432'
+      #DB_POSTGRES_USER: 'npm'
+      #DB_POSTGRES_PASSWORD: 'npmpass'
+      #DB_POSTGRES_NAME: 'npm'
     ports:
       - '80:80'
       - '81:81'
