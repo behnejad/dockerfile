@@ -21,5 +21,9 @@ ALTER DATABASE databasename OWNER TO usermane;
 \c my_db
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
+\dt == list tables
+\dx == list extentions
+\d+ tablename == schema of table
+    
 command: postgres -c shared_preload_libraries=timescaledb
 sudo -u postgres createuser --interactive --pwprompt
