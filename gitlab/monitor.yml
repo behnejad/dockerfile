@@ -1,0 +1,19 @@
+services:
+  grafana:
+    image: grafana:12.3.0-17718666199
+    container_name: grafana
+    restart: unless-stopped
+    network_mode: host
+    user: 0:0
+    volumes:
+      - /opt/grafana-dir:/var/lib/grafana
+      - /var/opt/gitlab/redis/redis.socket:/var/opt/gitlab/redis/redis.socket
+
+  redisinsight:
+    image: redisinsight:2.70.1
+    container_name: redisinsight
+    user: 0:0
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /opt/redisinsight-dir/:/data
