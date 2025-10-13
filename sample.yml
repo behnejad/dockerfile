@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     command: start-dev
     network_mode: host
+    user: 0:0
     networks:
       - clusterNet
     environment:
