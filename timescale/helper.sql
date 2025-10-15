@@ -24,6 +24,8 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 \dt == list tables
 \dx == list extentions
 \d+ tablename == schema of table
+\l == list databases
+\du == list users roles
     
 command: postgres -c shared_preload_libraries=timescaledb
 sudo -u postgres createuser --interactive --pwprompt
