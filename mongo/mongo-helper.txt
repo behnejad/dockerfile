@@ -1,0 +1,11 @@
+mongosh --username [admin] --authenticationDatabase [db]
+show dbs
+use mydb
+db.createUser({user: "myuser", pwd: "mypassword", roles:["dbOwner"]})
+db.grantRolesToUser(
+    "myuser",
+    [
+        { role: "readWrite", db: "mydb" },
+        { role: "dbOwner", db: "mydb" }
+    ]
+);
