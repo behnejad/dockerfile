@@ -1,5 +1,6 @@
 CREATE USER your_new_username WITH PASSWORD 'your_secure_password';
 GRANT CONNECT ON DATABASE your_database_name TO your_new_username;
+grant select on table public.tbname to you_new_username;
 GRANT USAGE ON SCHEMA public TO your_new_username;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO your_new_username;
 GRANT ALL PRIVILEGES ON DATABASE "test_database" to tester;
