@@ -30,3 +30,9 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
     
 command: postgres -c shared_preload_libraries=timescaledb
 sudo -u postgres createuser --interactive --pwprompt
+
+-- postgresql.conf
+-- timezone = 'Asia/Tehran'
+-- log_timezone = 'Asia/Tehran'
+-- shared_preload_libraries = 'timescaledb'
+-- max_connections = 250
