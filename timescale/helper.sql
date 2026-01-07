@@ -36,3 +36,5 @@ sudo -u postgres createuser --interactive --pwprompt
 -- log_timezone = 'Asia/Tehran'
 -- shared_preload_libraries = 'timescaledb'
 -- max_connections = 250
+
+-- https://pgtune.leopard.in.ua/
