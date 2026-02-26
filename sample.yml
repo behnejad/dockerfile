@@ -54,10 +54,11 @@ services:
       resources:
         limits:
           memory: 8G
-          cpus: 4.000
+          cpus: 4.000    
+        reservations:
+          memory: 6000M
       placement:
-        constraints: [node.role == manager]
-        #constraints: [node.platform.os == linux]
+        constraints: [node.role == manager] #[node.platform.os == linux]
       update_config:
         parallelism: 1
         delay: 10s
