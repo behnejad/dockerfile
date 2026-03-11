@@ -13,6 +13,8 @@ services:
     command: start-dev
     network_mode: host
     user: 0:0
+    labels:
+      traefik.enable: "false"
     networks:
       - clusterNet
     environment:
@@ -27,6 +29,9 @@ services:
       - "/path/to/a:/path/to/b"
       - "/path/to/a:/path/to/b:Z"
       - "/path/to/a:/path/to/b:ro"
+      - type: bind
+        source: /media/disk/docker/mongo
+        target: /data/db
     extra_hosts:
       - "a.a.com:1.1.1.1"
     ulimits:
