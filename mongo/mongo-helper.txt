@@ -1,3 +1,8 @@
+docker run --name mongosh --network mongodb mongodb/mongodb-community-server:$MONGODB_VERSION mongosh mongodb://mongodb --eval "show dbs"
+docker run -it mongodb/mongodb-community-server:$MONGODB_VERSION mongosh "mongodb://username:password@clusterURL/database"
+docker run -it -v $(pwd):/tmp mongodb/mongodb-community-server:$MONGODB_VERSION mongoexport --collection=COLLECTION --out=/tmp/COLLECTION.json "mongodb://username:password@clusterURL/database"
+docker run -it -v $(pwd):/tmp mongodb/mongodb-community-server:$MONGODB_VERSION mongoimport --drop --collection=COLLECTION "mongodb+srv://user:password@clusterURL/database" /tmp/COLLECTION.json
+
 mongosh --username [admin] --authenticationDatabase [db]
 show dbs
 use mydb
