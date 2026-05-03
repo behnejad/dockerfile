@@ -18,6 +18,7 @@ CREATE DATABASE tablename
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8';
 ALTER DATABASE databasename OWNER TO usermane;
+ALTER TABLE tblname OWNER TO username;
 
 \c my_db
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;

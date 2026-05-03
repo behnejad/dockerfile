@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo:8.0.11-noble
+    image: mongodb/mongodb-community-server:8.0.19-ubuntu2204
     container_name: mongo
     restart: unless-stopped
     environment:
