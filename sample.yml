@@ -82,6 +82,8 @@ networks:
   clusterNet:
     external:
       name: clusterNet
+  default:
+    internal: true
 
 volumes:
   portainer_data:
