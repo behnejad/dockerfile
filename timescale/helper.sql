@@ -20,6 +20,8 @@ CREATE DATABASE tablename
 ALTER DATABASE databasename OWNER TO usermane;
 ALTER TABLE tblname OWNER TO username;
 
+SET CLIENT_ENCODING TO 'utf8';
+
 \c my_db
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
