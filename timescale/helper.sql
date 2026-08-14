@@ -22,9 +22,12 @@ ALTER TABLE tblname OWNER TO username;
 
 SET CLIENT_ENCODING TO 'utf8';
 
-\c my_db
+-- extension related
+select * from pg_available_extension_versions() where name = 'timescaledb';
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+ALTER EXTENSION timescaledb UPDATE;
 
+\c my_db == switch db
 \dt == list tables
 \dx == list extentions
 \d+ tablename == schema of table
